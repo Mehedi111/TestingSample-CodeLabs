@@ -5,6 +5,9 @@ import androidx.lifecycle.Observer
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.example.android.architecture.blueprints.todoapp.Event
+import com.example.android.architecture.blueprints.todoapp.data.Task
+import com.example.android.architecture.blueprints.todoapp.data.source.FakeTestRepository
+import com.example.android.architecture.blueprints.todoapp.data.source.TasksRepository
 import com.example.android.architecture.blueprints.todoapp.getOrAwaitValue
 import org.hamcrest.CoreMatchers.*
 import org.hamcrest.MatcherAssert.assertThat
@@ -61,8 +64,10 @@ import org.junit.runner.RunWith
  * The AndroidJUnit4 test runner allows for AndroidX Test
  * to run your test differently depending on whether they are instrumented or local tests.
  */
-@RunWith(AndroidJUnit4::class)
+//@RunWith(AndroidJUnit4::class)
 class TasksViewModelTest {
+    //TasksViewModelTest should only test TasksViewModel code—it should not test in database, network, or the repository classes
+
     //given, when and then or Arrange, Act, Assert
 
     @get: Rule
@@ -70,12 +75,24 @@ class TasksViewModelTest {
     //in the same thread so that the test results happen synchronously
     val instantTaskExecutorRule = InstantTaskExecutorRule()
 
+    // Use a fake repository to be injected into the viewmodel
+    private lateinit var tasksRepository: FakeTestRepository
+
     // Subject under test
     private lateinit var tasksViewModel: TasksViewModel
 
     @Before
     fun setUp(){
-        tasksViewModel = TasksViewModel(ApplicationProvider.getApplicationContext())
+        //Because you are no longer using the AndroidX Test ApplicationProvider.getApplicationContext code,
+        //you can also remove the @RunWith(AndroidJUnit4::class) annotation.
+        //tasksViewModel = TasksViewModel(ApplicationProvider.getApplicationContext())
+        tasksRepository = FakeTestRepository()
+        val task1 = Task("Title1", "Description1")
+        val task2 = Task("Title2", "Description2", true)
+        val task3 = Task("Title3", "Description3", true)
+        tasksRepository.addTasks(task1, task2, task3)
+
+        tasksViewModel = TasksViewModel(tasksRepository)
     }
 
     /**
@@ -87,11 +104,12 @@ class TasksViewModelTest {
         // Given a fresh TasksViewModel
         //val taskViewModel = TasksViewModel(ApplicationProvider.getApplicationContext())
 
+        //BOILERPLATE EXAMPLE
         // Create observer - no need for it to do anything!
+        /*
         val observer = Observer<Event<Unit>> {}
 
-        //BOILERPLATE EXAMPLE
-        /*try {
+        try {
 
             taskViewModel.newTaskEvent.observeForever(observer)
             // When adding a new task
