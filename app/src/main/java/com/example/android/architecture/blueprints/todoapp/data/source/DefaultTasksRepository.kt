@@ -15,15 +15,11 @@
  */
 package com.example.android.architecture.blueprints.todoapp.data.source
 
-import android.app.Application
 import androidx.lifecycle.LiveData
-import androidx.room.Room
 import com.example.android.architecture.blueprints.todoapp.data.Result
 import com.example.android.architecture.blueprints.todoapp.data.Result.Success
 import com.example.android.architecture.blueprints.todoapp.data.Task
-import com.example.android.architecture.blueprints.todoapp.data.source.local.TasksLocalDataSource
-import com.example.android.architecture.blueprints.todoapp.data.source.local.ToDoDatabase
-import com.example.android.architecture.blueprints.todoapp.data.source.remote.TasksRemoteDataSource
+import com.example.android.architecture.blueprints.todoapp.util.wrapEspressoIdlingResource
 import kotlinx.coroutines.*
 
 /**
@@ -35,23 +31,23 @@ class DefaultTasksRepository(
         private val ioDispatcher: CoroutineDispatcher = Dispatchers.IO
 ) : TasksRepository {
 
-   /* companion object {
-        @Volatile
-        private var INSTANCE: DefaultTasksRepository? = null
-        fun getRepository(app: Application): DefaultTasksRepository {
-            return INSTANCE ?: synchronized(this) {
+    /* companion object {
+         @Volatile
+         private var INSTANCE: DefaultTasksRepository? = null
+         fun getRepository(app: Application): DefaultTasksRepository {
+             return INSTANCE ?: synchronized(this) {
 
-                val database = Room.databaseBuilder(app,
-                        ToDoDatabase::class.java, "Tasks.db")
-                        .build()
+                 val database = Room.databaseBuilder(app,
+                         ToDoDatabase::class.java, "Tasks.db")
+                         .build()
 
-                DefaultTasksRepository(TasksRemoteDataSource, TasksLocalDataSource(database.taskDao())).also {
-                    INSTANCE = it
-                }
-            }
-        }
-    }
-*/
+                 DefaultTasksRepository(TasksRemoteDataSource, TasksLocalDataSource(database.taskDao())).also {
+                     INSTANCE = it
+                 }
+             }
+         }
+     }
+ */
     /*companion object {
         @Volatile
         private var INSTANCE: DefaultTasksRepository? = null
@@ -74,15 +70,19 @@ class DefaultTasksRepository(
         tasksLocalDataSource = TasksLocalDataSource(database.taskDao())
     }*/
 
+
+
     override suspend fun getTasks(forceUpdate: Boolean): Result<List<Task>> {
-        if (forceUpdate) {
-            try {
-                updateTasksFromRemoteDataSource()
-            } catch (ex: Exception) {
-                return Result.Error(ex)
+        wrapEspressoIdlingResource {
+            if (forceUpdate) {
+                try {
+                    updateTasksFromRemoteDataSource()
+                } catch (ex: Exception) {
+                    return Result.Error(ex)
+                }
             }
+            return tasksLocalDataSource.getTasks()
         }
-        return tasksLocalDataSource.getTasks()
     }
 
     override suspend fun refreshTasks() {

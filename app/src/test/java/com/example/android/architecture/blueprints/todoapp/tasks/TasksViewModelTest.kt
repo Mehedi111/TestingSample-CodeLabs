@@ -5,17 +5,26 @@ import androidx.lifecycle.Observer
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.example.android.architecture.blueprints.todoapp.Event
+import com.example.android.architecture.blueprints.todoapp.MainCoroutineRule
+import com.example.android.architecture.blueprints.todoapp.R
 import com.example.android.architecture.blueprints.todoapp.data.Task
 import com.example.android.architecture.blueprints.todoapp.data.source.FakeTestRepository
 import com.example.android.architecture.blueprints.todoapp.data.source.TasksRepository
 import com.example.android.architecture.blueprints.todoapp.getOrAwaitValue
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.TestCoroutineDispatcher
+import kotlinx.coroutines.test.resetMain
+import kotlinx.coroutines.test.setMain
 import org.hamcrest.CoreMatchers.*
 import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.Matchers
+import org.junit.After
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.junit.runners.Parameterized
 
 /**
  * @AUTHOR: Mehedi Hasan
@@ -65,6 +74,7 @@ import org.junit.runner.RunWith
  * to run your test differently depending on whether they are instrumented or local tests.
  */
 //@RunWith(AndroidJUnit4::class)
+@ExperimentalCoroutinesApi
 class TasksViewModelTest {
     //TasksViewModelTest should only test TasksViewModel code—it should not test in database, network, or the repository classes
 
@@ -81,11 +91,16 @@ class TasksViewModelTest {
     // Subject under test
     private lateinit var tasksViewModel: TasksViewModel
 
+    @get:Rule
+    var mainCoroutineRule = MainCoroutineRule()
+
     @Before
     fun setUp(){
         //Because you are no longer using the AndroidX Test ApplicationProvider.getApplicationContext code,
         //you can also remove the @RunWith(AndroidJUnit4::class) annotation.
         //tasksViewModel = TasksViewModel(ApplicationProvider.getApplicationContext())
+       // Dispatchers.setMain(testDispatcher)
+
         tasksRepository = FakeTestRepository()
         val task1 = Task("Title1", "Description1")
         val task2 = Task("Title2", "Description2", true)
@@ -93,8 +108,15 @@ class TasksViewModelTest {
         tasksRepository.addTasks(task1, task2, task3)
 
         tasksViewModel = TasksViewModel(tasksRepository)
+
     }
 
+  /*  @After
+    fun tearDown() {
+        Dispatchers.resetMain()
+        testDispatcher.cleanupTestCoroutines()
+    }
+*/
     /**
      * NOTE: each test should have a fresh instance of the subject under test (the ViewModel in this case).
      */
@@ -147,4 +169,22 @@ class TasksViewModelTest {
         assertThat(tasksViewModel.tasksAddViewVisible.getOrAwaitValue(), `is`(true))
     }
 
+    @Test
+    fun completedTask_dataAndSnackBarUpdated() {
+        // Create an active task and add it to the repository.
+        val task = Task("Title", "Description")
+        tasksRepository.addTasks(task)
+
+        // Mark the task as complete task.
+        tasksViewModel.completeTask(task, true)
+
+        // Verify the task is completed.
+        assertThat(tasksRepository.tasksServiceData[task.id]?.isCompleted, `is`(true))
+
+        // Assert that the snackbar has been updated with the correct text.
+        val snackbarText: Event<Int> =  tasksViewModel.snackbarText.getOrAwaitValue()
+
+        assertThat(snackbarText.getContentIfNotHandled(), `is`(R.string.task_marked_complete))
+
+    }
 }

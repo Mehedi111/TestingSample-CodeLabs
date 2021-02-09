@@ -30,6 +30,7 @@ android {
         unitTests {
             // allows you to access android resources in your unit tests, including your AndroidManifest file
             includeAndroidResources = true
+            returnDefaultValues = true
         }
     }
 }
@@ -73,6 +74,11 @@ dependencies {
 
     testImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-test:$coroutinesVersion"
 
+    androidTestImplementation "androidx.arch.core:core-testing:$archTestingVersion"
+    // architecture component testing library to your instrumented tests
+
+    implementation "androidx.test.espresso:espresso-idling-resource:$espressoVersion"
+
 
 
     // AndroidX Test - Instrumented testing
@@ -92,6 +98,28 @@ dependencies {
     => androidx.fragment:fragment-testing—AndroidX test library for creating fragments in tests and changing their state.
     * */
 
+    androidTestImplementation "androidx.test.espresso:espresso-core:$espressoVersion"
+// Dependencies for Android instrumented unit tests
+
+    androidTestImplementation "org.mockito:mockito-core:$mockitoVersion"
+
+    androidTestImplementation "com.linkedin.dexmaker:dexmaker-mockito:$dexMakerVersion"
+
+    androidTestImplementation "androidx.test.espresso:espresso-contrib:$espressoVersion"
+
+    /*
+    * org.mockito:mockito-core—This is the Mockito dependency.
+    *
+    *  dexmaker-mockito—This library is required to use Mockito in an Android project.
+    *  Mockito needs to generate classes at runtime. On Android, this is done using dex byte code,
+    *  and so this library enables Mockito to generate objects during runtime on Android.
+    *
+    * androidx.test.espresso:espresso-contrib—This library is made up of external contributions
+    * (hence the name) which contain testing code for more advanced views,
+    * such as DatePicker and RecyclerView.
+    * It also contains Accessibility checks and class called CountingIdlingResource that is covered later.
+    * */
+    
     // Kotlin
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlinVersion"
     implementation "androidx.fragment:fragment-ktx:$fragmentKtxVersion"
