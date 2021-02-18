@@ -1,5 +1,6 @@
 TO-DO Notes - Code for 5.1-5.3 Testing Codelab
 ============================================================================
+![Build Status](https://travis-ci.com/Mehedi111/TestingSample-CodeLabs.svg?branch=starter_code)
 
 Code for the Advanced Android Kotlin Testing Codelab 5.1-5.3
 
