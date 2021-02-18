@@ -1,0 +1,4 @@
+Integration tests test the interaction of several classes to make sure
+they behave as expected when used together.
+These tests can be run either locally (test source set) or
+as instrumentation tests (androidTest source set).

@@ -15,6 +15,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.TestCoroutineDispatcher
 import kotlinx.coroutines.test.resetMain
+import kotlinx.coroutines.test.runBlockingTest
 import kotlinx.coroutines.test.setMain
 import org.hamcrest.CoreMatchers.*
 import org.hamcrest.MatcherAssert.assertThat
@@ -123,6 +124,7 @@ class TasksViewModelTest {
 
     @Test
     fun addNewTask_setsNewTaskEvent() {
+
         // Given a fresh TasksViewModel
         //val taskViewModel = TasksViewModel(ApplicationProvider.getApplicationContext())
 
